@@ -11,5 +11,17 @@ docs
 .sqlite-journal
 *.db-shm
 *.db-wal
+test-results/
+playwright-report/
+blob-report/
+
+
+# AI agents / custom instructions
+.agents/
+AGENTS.md
+CLAUDE.md
+skills-lock.json
+
+
 .env*
 
