@@ -1,0 +1,15 @@
+.next/
+node_modules/
+.git/
+.gitignore
+*.db
+.env*.local
+data/
+*.sqlite
+docs
+.vscode
+.sqlite-journal
+*.db-shm
+*.db-wal
+.env*
+
