@@ -24,18 +24,6 @@
 
 #### Database & migrations
 
--
-
-#### New dependencies
-
--
-
-#### OpenSpec reference
-
-<!-- Change ID and path if this follows the openspec flow (spec/changes/<change-id>/). Remove if not applicable. -->
-
-- **Change ID:** `<!-- add-anonymous-create-short-url -->`
-
 ---
 
 ### Visual
