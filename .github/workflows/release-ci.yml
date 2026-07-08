@@ -1,19 +1,19 @@
-name: CI
+name: Release E2E CI
 
 on:
   push:
-    branches: [develop]
+    branches: [master]
     paths-ignore:
       - '**.md'
       - 'docs/**'
   pull_request:
-    branches: [develop]
+    branches: [master]
     paths-ignore:
       - '**.md'
       - 'docs/**'
 
 jobs:
-  build-and-test:
+  release-validation:
     runs-on: ubuntu-24.04
 
     steps:
@@ -45,5 +45,11 @@ jobs:
       - name: Verify TypeScript types
         run: bun run typecheck
 
-      - name: Run tests
+      - name: Run unit and integration tests
         run: bun run test
+
+      - name: Install Playwright Browsers
+        run: bunx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: bun run test:e2e
