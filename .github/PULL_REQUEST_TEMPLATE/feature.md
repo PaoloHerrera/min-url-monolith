@@ -1,28 +1,57 @@
-## 🚀 Feature: [Nombre del Caso de Uso / Característica]
+## Feature: [Feature name]
 
-### 📝 Descripción
+> New functionality into `develop`. Include an OpenSpec proposal reference if applicable.
 
-_Describe qué caso de uso resuelve este cambio y cómo se implementó._
+---
 
-### 🎨 UI / Cambios Visuales
+### Goal
 
-_Si este cambio afecta a la interfaz de usuario, agrega aquí capturas de pantalla o grabaciones (drag & drop) demostrativas._
+<!-- What use case does this solve? Why is it being built? One or two sentences to set the context. -->
 
-### 🛠️ Detalles Técnicos
+---
 
-- **Base de datos:** _(¿Se modificó el esquema de Drizzle?)_
-- **Dependencias:** _(¿Se instaló algún paquete nuevo?)_
+### Changes (Changelog)
 
-### 🚨 Checklist de Accesibilidad (A11y)
+<!-- Describe what was added, modified, or removed. Group by layer if it helps readability. -->
 
-- [ ] Los targets de click/touch miden al menos `44x44px` (`touch-targets`).
-- [ ] Hay un orden lógico de tabulación por teclado.
-- [ ] Los elementos interactivos tienen etiquetas accesibles (visible label o `aria-label`).
-- [ ] El contraste del texto cumple con las pautas WCAG (mínimo 4.5:1).
+#### Backend / API
 
-### 🧪 Validación Local
+-
 
-- [ ] Ejecuté `bun run format` y el formato está correcto.
-- [ ] Corrí `bun run lint` y pasa sin advertencias.
-- [ ] Verifiqué tipos con `bun run typecheck`.
-- [ ] Los tests de Vitest pasaron exitosamente (`bun run test`).
+#### UI / Frontend
+
+-
+
+#### Database & migrations
+
+-
+
+#### New dependencies
+
+-
+
+#### OpenSpec reference
+
+<!-- Change ID and path if this follows the openspec flow (spec/changes/<change-id>/). Remove if not applicable. -->
+
+- **Change ID:** `<!-- add-anonymous-create-short-url -->`
+
+---
+
+### Visual
+
+<!-- Drag and drop screenshots or recordings showing the before/after. Remove this section if there are no UI changes. -->
+
+| Before | After |
+| ------ | ----- |
+|        |       |
+
+---
+
+### Verification
+
+- [ ] `bun run format` with no differences
+- [ ] `bun run lint` with no warnings or errors
+- [ ] `bun run typecheck` with no errors
+- [ ] `bun run test` passing (Vitest)
+- [ ] `bun run test:e2e` passing (Playwright) — if UI or user flow changes are included

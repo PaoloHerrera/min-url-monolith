@@ -1,20 +1,27 @@
-## ⚡ PR Rápida / Cambios Menores
+## Quick: [Brief title of the change]
 
-### 📝 Descripción
+> Hotfix or small targeted change into `develop`. Limited scope — if it grew, consider a Feature PR instead.
 
-_Describe brevemente el cambio introducido en este PR._
+---
 
-### 🛠️ Tipo de Cambio
+### Goal
 
-- [ ] `fix` (Corrección de un error menor)
-- [ ] `chore` (Tareas de mantenimiento, actualización de dependencias)
-- [ ] `style` (Cambios puramente estéticos, sin impacto en la lógica)
-- [ ] `docs` (Actualización de documentación)
-- [ ] `refactor` (Reorganización de código sin cambio de comportamiento)
+<!-- What problem does this fix or what situation does it address? -->
 
-### 🚨 Checklist de Calidad
+---
 
-- [ ] Ejecuté `bun run format` y el código está limpio de formato.
-- [ ] Ejecuté `bun run lint` y no hay warnings ni errores de ESLint.
-- [ ] El tipado TypeScript es válido (`bun run typecheck`).
-- [ ] Las pruebas locales pasaron exitosamente.
+### Changes
+
+<!-- List the files or areas touched and what was modified in each. -->
+
+| Area | What changed |
+| ---- | ------------ |
+|      |              |
+
+---
+
+### Verification
+
+- [ ] `bun run format` with no differences
+- [ ] `bun run lint` with no warnings or errors
+- [ ] `bun run test` passing

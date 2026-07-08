@@ -1,28 +1,59 @@
-## 🚀 Release: Develop ➔ Master
+## Release v<!-- x.y.z -->: Develop ➔ Master
 
-### 📦 Resumen del Release
+> Stable version ready for production. Everything is tested manually before merging.
 
-_Describe qué casos de uso, características principales o correcciones críticas se completan e integran a producción en este release._
+---
 
-### 📋 Lista de Cambios (Changelog)
+### Goal
 
-- [ ] **Caso de Uso / Feature:** _Descripción del caso de uso completado_
-- [ ] **Bugfix:** _Descripción del error corregido_
-- [ ] **Otros:** _Otros cambios relevantes_
+<!-- What does this release accomplish? What capabilities become available in production? -->
 
-### 🧪 Pruebas de Calidad Realizadas
+---
 
-- [ ] **Tests Unitarios / Integración (Vitest):** `bun run test` completado con éxito.
-- [ ] **Tests E2E (Playwright):** `bun run test:e2e` verificado y sin fallos.
-- [ ] **Construcción de Docker:** La app compila y levanta correctamente en producción local (`docker compose up --build`).
-- [ ] **Tipo-Safe:** Validación de tipos sin errores (`bun run typecheck`).
+### Changelog
 
-### 📊 Observabilidad e Instrumentación (SRE)
+#### ✨ Features
 
-- [ ] ¿Este release incluye nuevas métricas en `/api/metrics`? (Si aplica, descríbelas).
-- [ ] ¿Requiere actualizar o agregar variables de entorno en el contenedor de Docker?
+-
 
-### ✅ Checklist Final
+#### 🐛 Fixes
 
-- [ ] El CI de la rama `develop` está completamente en verde (aprobado).
-- [ ] Todos los commits siguen la convención _Conventional Commits_.
+-
+
+#### ♻️ Refactors & internal improvements
+
+-
+
+#### 📦 Dependencies
+
+-
+
+---
+
+### Visual
+
+<!-- Screenshots or recordings of the main flows tested. Remove this section if there are no visible changes. -->
+
+---
+
+### Verification
+
+#### Automated
+
+- [ ] CI on `develop` is green (GitHub Actions)
+- [ ] `bun run test` passing (Vitest)
+- [ ] `bun run test:e2e` passing (Playwright)
+- [ ] `bun run build` with no errors
+
+#### Manual
+
+- [ ] Main flow tested locally: create short URL and redirect
+- [ ] Docker: `docker compose up --build` starts without errors and the app responds
+- [ ] Environment variables verified (`.env` up to date, no exposed secrets)
+- [ ] <!-- Add any release-specific flow you tested manually -->
+
+---
+
+### Production notes
+
+<!-- Pending migrations, new env vars, config changes, or any other special instructions. Remove if not applicable. -->
