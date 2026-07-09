@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs'
 import { dirname } from 'node:path'
-import Database from 'better-sqlite3'
-import { drizzle } from 'drizzle-orm/better-sqlite3'
+import { Database } from 'bun:sqlite'
+import { drizzle } from 'drizzle-orm/bun-sqlite'
 import { eq } from 'drizzle-orm'
 import { shortLinks } from './schema'
 import type { LinkRepository, ShortLink } from './repository'
@@ -23,7 +23,7 @@ export class DrizzleLinkRepository implements LinkRepository {
   constructor(path: string = DB_PATH) {
     mkdirSync(dirname(path), { recursive: true })
     const client = new Database(path)
-    client.exec(`
+    client.run(`
       CREATE TABLE IF NOT EXISTS short_links (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         short_code TEXT NOT NULL UNIQUE,
