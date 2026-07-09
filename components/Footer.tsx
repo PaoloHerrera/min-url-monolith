@@ -4,7 +4,7 @@ export function Footer() {
       <div className="text-muted-foreground mx-auto flex flex-col items-center gap-2 text-xs">
         <p>© {new Date().getFullYear()} Min-URL Monolith • Built with Next.js 16 &amp; Bun</p>
         <span className="border-border/60 rounded-full border px-2 py-0.5 font-mono text-[11px]">
-          v0.2.0-stable
+          v0.3.0-stable
         </span>
       </div>
     </footer>
