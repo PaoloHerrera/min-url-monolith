@@ -45,11 +45,15 @@ bun run start        # start production server
 ## Architecture
 
 - **Entrypoint:** `app/layout.tsx` (root layout) + `app/page.tsx` (landing page).
-- **Auth:** Better Auth (email/password + Google OAuth) — planned, not yet installed.
-- **Database:** SQLite via `better-sqlite3` + Drizzle ORM — planned, not yet installed.
+- **Scope:** Only **UC-01 (create anonymous short URL)** and **UC-02 (redirect `GET /:shortCode` 302 + count clicks in `link_visits`)** are in scope. Authentication (UC-03), Dashboard, Analytics and custom aliases have been **discarded**. Observability (Prometheus `/api/metrics`, pino+Loki, K6, Docker) is the north star but lands in a **later phase, after UX/UI**.
+- **Database:** SQLite via **`bun:sqlite`** + Drizzle ORM (already implemented).
 - **Design tokens:** CSS custom properties defined in `docs/REQUISITOS.md` (dark mode default, light via `.light` class). Reusable glass/button classes documented there.
-- **Pending directories** (per implementation plan): `src/`, `components/`, `k6/` (load testing).
+- **Directories:** `src/` (libs/repos) and `components/` (e.g. `ToolCard.tsx`) already exist. `k6/` (load testing scripts) will be added in the observability phase.
 - **Pencil design files:** `designs/*.pen` — access only via `pencil` MCP tools.
+
+## Upcoming: UX/UI landing phase
+
+The next phase polishes the landing (`app/page.tsx` + `components/ToolCard.tsx`): hero/badge/grid/glows, full ToolCard states, optional minimal navbar/footer, dark/light toggle, responsive and a11y. It will use **shadcn/ui** (React + Tailwind v4), not OpenPencil.
 
 ## Naming conventions
 

@@ -1,77 +1,84 @@
-# Plan de Implementación: Diseño de la Landing Page de Min-URL en OpenPencil
+# Plan de Implementación: Pulido UX/UI de la Landing Page (Min-URL)
 
-Este plan describe la propuesta de diseño y la estructura técnica para construir la **Landing Page** de **Min-URL** (un acortador de enlaces monolítico) en OpenPencil, basándonos estrictamente en el documento de requisitos [REQUISITOS.md](file:///d:/Proyectos/Min-URL-monolith/docs/REQUISITOS.md).
-
----
-
-## Estructura de la Landing Page
-
-De acuerdo con los requisitos funcionales, la página de aterrizaje debe ser extremadamente limpia, sin secciones de características adicionales (features), cuadrículas bento, testimonios o sobrecargas visuales. Tendrá tres componentes principales:
-
-1. **Barra de Navegación Minimalista (Navbar)**
-2. **Sección Hero con la Tool Card (Acortador funcional)**
-3. **Footer Minimalista**
-
-Propondremos dos vistas en el archivo de diseño para garantizar la consistencia responsive:
-
-- **Vista Desktop (Escritorio):** Ancho `1200px` con scroll vertical automático (altura inicial estimada `1000px`).
-- **Vista Mobile (Móvil):** Ancho `375px` y altura fija `812px` (estilo aplicación/tarea única móvil).
+> **Estado:** Fase próxima (post-UC-01/UC-02, pre-observabilidad).
+> **Enfoque:** React directo + **shadcn/ui** (Tailwind v4). **NO** OpenPencil.
+> **Referencia de requisitos:** `docs/REQUISITOS.md` (§4.1 Landing, §5 Estados de UI, §6–§8 Responsive/Modo claro/Accesibilidad).
 
 ---
 
-## Propuesta de Diseño Visual
+## Contexto
 
-Usaremos la paleta oscura por defecto (Dark Mode) especificada en el sistema de diseño:
+La landing (`app/page.tsx`) **ya existe** y está parcialmente pulida: incluye hero con badge, glows y background grid decorativos, la `ToolCard` funcional, una sección de features / bento grid de 3 cards y un footer minimal. Esta fase no recrea la landing desde cero; la **conserva y la refina** para cumplir al 100% los estados de UI, la accesibilidad y el responsive definidos en REQUISITOS.
 
-- **Fondo de Página (`--bg-base`):** `#030712` (azul oscuro profundo).
-- **Superficie de Tarjetas (`--bg-card`):** `rgba(255, 255, 255, 0.03)` con bordes sutiles de `rgba(255, 255, 255, 0.08)` y filtro de desenfoque de fondo (`backdrop-filter: blur(12px)`).
-- **Color de Acento Brand (`--color-brand-500`):** `#0056FF` (azul eléctrico de alta visibilidad).
-- **Tipografía:** Familia `Geist` (usando "Inter" o "Space Grotesk" como fallback visual en OpenPencil) con pesos `700` para títulos principales, `500`/`600` para componentes y `400` para texto de cuerpo.
+> ⚠️ **OpenPencil es OBSOLETO para este proyecto.** Las referencias previas a `designs/landing_page.op` y al editor OpenPencil (live canvas en puerto 7600) **no se aplican**. El diseño de la landing se implementa directamente en código con shadcn/ui sobre el sistema de tokens existente (`docs/REQUISITOS.md` §3). Los archivos de diseño activos son `designs/*.pen` (accesibles únicamente vía las herramientas MCP de `pencil`); el flujo OpenPencil quedó descartado.
 
 ---
 
-## Estructura de Componentes en OpenPencil (Árbol de Nodos)
+## Objetivos de la fase
 
-El archivo de diseño se creará en la nueva carpeta del repositorio: [designs/landing_page.op](file:///d:/Proyectos/Min-URL-monolith/designs/landing_page.op).
-
-### 1. Vista de Escritorio (Desktop Viewport)
-
-- **Root Frame (`desktop-root`):** `type: "frame"`, `width: 1200`, `layout: "vertical"`, `fill: "#030712"`, `alignItems: "center"`, `padding: [0, 80]`.
-  - **Navbar (`desktop-nav`):** `role: "navbar"`, `width: 1040`, `height: 72`, `layout: "horizontal"`, `justifyContent: "space_between"`, `alignItems: "center"`.
-    - **Brand/Logo Group:** Logo minimalista + Texto `"Min-URL"`.
-    - **Auth Actions Group:** Botón Ghost `"Iniciar sesión"` + Botón Primary/CTA `"Registrarse"`.
-  - **Hero Section (`desktop-hero`):** `role: "hero"`, `width: 1040`, `layout: "vertical"`, `alignItems: "center"`, `padding: [120, 0, 80, 0]`, `gap: 24`.
-    - **Badge Decorativo:** `"✦ Laboratorio de Arquitectura Monolítica"` (Píldora pequeña, borde azul eléctrico, texto sutil).
-    - **Headline (`text`):** `"Acorta. Comparte. Analiza."` (`fontSize: 48`, `fontWeight: 700`, `fill: "#F1F5F9"`, `textAlign: "center"`).
-    - **Tagline (`text`):** `"URLs cortas con estadísticas y analíticas en tiempo real en un solo monolito."` (`fontSize: 16`, `fill: "#94A3B8"`, `textAlign: "center"`).
-  - **Tool Card (Formulario Acortador - `desktop-tool-card`):** `role: "card"`, `width: 640`, `layout: "vertical"`, `padding: 24`, `cornerRadius: 12`, `fill: "rgba(255, 255, 255, 0.03)"`, `stroke: "rgba(255,255,255,0.08)"`, `effects: [shadow]`, `gap: 16`.
-    - **Input Group:**
-      - Label: `"Introduce tu URL larga"` (`fontSize: 13`, `fontWeight: 600`, `fill: "#F1F5F9"`).
-      - Input Container: `layout: "horizontal"`, `alignItems: "center"`, `height: 48`, `padding: [0, 16]`, `cornerRadius: 8`, `stroke: "rgba(255,255,255,0.12)"`.
-        - Icon: `LinkIcon` (azul).
-        - Text Placeholder: `"https://tu-enlace-largo.com/seccion/articulo..."` (`fill: "#64748B"`).
-    - **Button Submit (`tool-btn-submit`):** `width: "fill_container"`, `height: 48`, `fill: "#0056FF"`, `cornerRadius: 8`, `justifyContent: "center"`.
-      - Text: `"Acortar Enlace"` (`fontSize: 15`, `fontWeight: 600`, `fill: "#FFFFFF"`).
-  - **Footer minimalista (`desktop-footer`):** `role: "footer"`, `width: 1040`, `height: 80`, `layout: "horizontal"`, `justifyContent: "space_between"`, `alignItems: "center"`.
-    - **Copyright:** `"© 2026 Min-URL. Todos los derechos reservados."`.
-    - **GitHub Link:** Icono `GithubIcon` + Texto `"Ver en GitHub"`.
+1. **Cumplir todos los estados de UI** de REQUISITOS §5.1 (Input) y §5.2 (Button) en `ToolCard`.
+2. **Accesibilidad (§8):** skip link, landmarks semánticos, focus-visible, `aria-live` en feedback, `prefers-reduced-motion`.
+3. **Toggle dark/light funcional** (cookie + `localStorage`, clase `.light` en `<html>`), §7.
+4. **Responsive completo** (mobile/tablet/desktop), §6.
+5. **Componentes shadcn/ui** para consistencia y calidad de implementación.
 
 ---
 
-## Preguntas Abiertas e Iteración
+## Componentes a pulir
 
-> [!NOTE]
->
-> 1. **¿Deseas que prepare también el estado de "Éxito" (tras acortar la URL) como una pantalla alternativa en OpenPencil?** Los requisitos indican que tras acortar se debe mostrar la URL acortada y botones para copiar/visitar.
-> 2. **¿Configuro el editor en vivo (Puerto 7600) para que veas la renderización en tiempo real en tu app de OpenPencil en primer plano?** Si tienes la app abierta, podemos correrlo directamente contra el canvas "live" en vez de escribir solo en disco.
+### 1. Hero (`app/page.tsx`)
+
+- Conservar: badge decorativo, título con gradiente, tagline, glows y background grid.
+- Asegurar `prefers-reduced-motion`: el background grid y los glows se ocultan/atenúan en modo reducido (§3.5, §9.4).
+- Jerarquía de headings correcta (un solo `<h1>`).
+
+### 2. ToolCard (`components/ToolCard.tsx`)
+
+- Estados completos según §5.1/§5.2:
+  - **Input:** normal, hover, focus (ring brand), active, disabled, loading (spinner inline), error (borde rojo + mensaje inline vía `aria-describedby`), success (checkmark 2s).
+  - **Button:** normal, hover (glow), focus, active (scale 0.97), disabled, loading (spinner sustituye texto).
+- Tras acortar: estado de éxito con **Copy** (`btn-copy`), **Visit**, **Shorten another** (resetea el formulario).
+- Feedback accesible en `aria-live="polite"` (§8.1).
+- Migrar a primitivas shadcn/ui (`Input`, `Button`, `Toast`) manteniendo las clases de tokens (`tool-input`, `tool-btn-submit`, `btn-copy`, `glass-panel`).
+
+### 3. Navbar mínimo (opcional, nuevo)
+
+- Logo + toggle dark/light. **Sin** login/register (auth eliminada).
+- Landmark `<nav>` semántico; colapsable en mobile.
+
+### 4. Footer (`app/page.tsx`)
+
+- Minimal: copyright + versión. Landmark `<footer>`.
+
+### 5. Background grid + glows
+
+- Reutilizar `bg-grid-pattern` (§3.5) / implementación inline actual; respetar `prefers-reduced-motion`.
+
+### 6. Toggle dark/light
+
+- Implementar con shadcn/ui `ThemeProvider` (o equivalente) + persistencia cookie para SSR y `localStorage`.
+- Transición suave 300ms en `background-color`/`color` (§7.4).
+
+### 7. Responsive
+
+- Mobile (≤768px): tool card full-width, hero más pequeño, bento 1 columna.
+- Desktop (≥1024px): tool card centrada (max ~640px), bento 3 columnas (§6.2).
+- Touch targets ≥ 44×44px; sin scroll horizontal.
 
 ---
 
-## Plan de Verificación
+## Plan de verificación
 
-1. **Inserción y Generación del Archivo `.op`:**
-   Generar el archivo en [designs/landing_page.op](file:///d:/Proyectos/Min-URL-monolith/designs/landing_page.op).
-2. **Validación del Esquema del Documento:**
-   Usar `openpencil-remote` para leer el árbol de nodos e inspeccionar que no existan errores de consistencia en el layout.
-3. **Validación Visual:**
-   Pedir al usuario que abra el archivo generado `designs/landing_page.op` en su aplicación OpenPencil para confirmar que cumple visualmente con lo esperado.
+1. **Lint + Build:** `bun run lint` y `bun run build` sin errores.
+2. **Manual a11y:** navegación por teclado (Tab/Shift+Tab), focus-visible, skip link, `aria-live` en éxito/error.
+3. **Toggle tema:** cambiar dark/light, recargar (persistencia cookie), verificar sin flash.
+4. **Responsive:** probar en 375 / 768 / 1024 / 1440px.
+5. **Reduced motion:** activar `prefers-reduced-motion` y verificar que glows/grid se atenúan.
+
+---
+
+## Fuera de alcance en esta fase
+
+- Observabilidad (Prometheus/Loki/K6/Docker) — fase posterior.
+- Auth / Dashboard / Analytics / alias personalizados — descartados.
+- OpenPencil / `designs/landing_page.op` — obsoletos.
