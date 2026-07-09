@@ -8,4 +8,11 @@ export const shortLinks = sqliteTable('short_links', {
   createdAt: text('created_at').notNull(),
 })
 
+export const linkVisits = sqliteTable('link_visits', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  shortCode: text('short_code').notNull(),
+  visitedAt: text('visited_at').notNull(),
+})
+
 export type ShortLinkRow = typeof shortLinks.$inferSelect
+export type LinkVisitRow = typeof linkVisits.$inferSelect

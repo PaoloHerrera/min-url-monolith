@@ -17,11 +17,14 @@ export interface LinkRepository {
   findByOriginalUrl(originalUrl: string): Promise<ShortLink | null>
   findByShortCode(shortCode: string): Promise<ShortLink | null>
   create(data: Omit<ShortLink, 'createdAt'>): Promise<ShortLink>
+  recordVisit(shortCode: string): Promise<ShortLink | null>
+  countClicks(shortCode: string): Promise<number>
 }
 
 export class InMemoryLinkRepository implements LinkRepository {
   private readonly byUrl = new Map<string, ShortLink>()
   private readonly byCode = new Map<string, ShortLink>()
+  private readonly visits = new Map<string, number>()
 
   async findByOriginalUrl(originalUrl: string): Promise<ShortLink | null> {
     return this.byUrl.get(originalUrl) ?? null
@@ -39,6 +42,17 @@ export class InMemoryLinkRepository implements LinkRepository {
     this.byUrl.set(link.originalUrl, link)
     this.byCode.set(link.shortCode, link)
     return link
+  }
+
+  async recordVisit(shortCode: string): Promise<ShortLink | null> {
+    const link = this.byCode.get(shortCode)
+    if (!link) return null
+    this.visits.set(shortCode, (this.visits.get(shortCode) ?? 0) + 1)
+    return link
+  }
+
+  async countClicks(shortCode: string): Promise<number> {
+    return this.visits.get(shortCode) ?? 0
   }
 }
 
