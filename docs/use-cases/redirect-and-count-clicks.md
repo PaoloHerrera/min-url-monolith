@@ -1,7 +1,7 @@
 # Caso de Uso: Redirección GET /:shortCode y conteo de clics
 
 > **Id del caso de uso:** UC-02  
-> **Estado:** Especificado (implementación pendiente, enfoque TDD)  
+> **Estado:** Implementado y retenido  
 > **Fuente de verdad:** `docs/REQUISITOS.md`, UC-01 (`docs/use-cases/create-short-url.md`)  
 > **Nota de alcance:** Sin nueva UI. El botón "Visit" de `ToolCard` ya enlaza a `shortUrl`.
 
@@ -62,11 +62,11 @@ Cuando un visitante navega a `GET /:shortCode`, el sistema resuelve el código a
 - **Autenticación / autorización** (Better Auth) — el actor es anónimo.
 - **Alias personalizados** — no aplica a la resolución/redirección.
 - **Dashboard / Analytics de serie temporal** (backlog ítem 5) — solo se sienta la base de datos `link_visits`; no se expone UI ni endpoint de stats en este caso.
-- **Observabilidad / Prometheus** (sección 10.1) — sin métricas en este caso.
+- **Observabilidad / Prometheus** (sección 10.1) — se añadirá en la capa de infraestructura en una fase posterior (no por caso de uso).
 
 ## 9. Arquitectura propuesta (documentación para alinear tests e implementación)
 
-> Esta sección describe el diseño intencional. **No se implementa aquí**; sirve de contrato para TDD.
+> Esta sección describe el diseño intencional que **ya está implementado** en el repositorio; se conserva como contrato de arquitectura.
 
 ### 9.1. Schema — `src/lib/links/schema.ts`
 
