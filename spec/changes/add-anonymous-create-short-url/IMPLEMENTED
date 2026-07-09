@@ -1,0 +1,11 @@
+Implementation completed: 2026-07-08
+
+Caso de uso: Crear short URL anónima (add-anonymous-create-short-url)
+Tests: 22 passing (vitest) — unitario de servicio, integración de route handler, componente ToolCard.
+Lint: 0 errores / 0 warnings.
+Typecheck: ok.
+Build: ok (exit 0).
+
+Notas:
+- Persistencia real vía Drizzle + better-sqlite3 (driver indicado en REQUISITOS.md). `bun:sqlite` no sirve porque el server de Next corre sobre el runtime Node, donde ese builtin no existe.
+- El route handler carga el repositorio Drizzle de forma diferida (lazy) para no evaluar la DB durante `next build`.

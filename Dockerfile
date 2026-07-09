@@ -4,14 +4,11 @@ WORKDIR /app
 
 # 2. Dependency Installation (All dependencies, including devDependencies for builder)
 FROM base AS deps
-# Alpine requires build tools for native dependencies like better-sqlite3
-RUN apk add --no-cache g++ make python3
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
 # 3. Production Dependency Installation (Only production dependencies)
 FROM base AS prod-deps
-RUN apk add --no-cache g++ make python3
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --production
 

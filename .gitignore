@@ -12,6 +12,10 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+/blob-report/
+
 
 # next.js
 /.next/
@@ -47,4 +51,12 @@ next-env.d.ts
 *.sqlite-journal
 *.db-shm
 *.db-wal
+
+# AI agents / custom instructions
+.agents/
+AGENTS.md
+CLAUDE.md
+skills-lock.json
+
+
 
