@@ -1,7 +1,7 @@
 # Caso de Uso: Crear short URL anónima
 
 > **Id del caso de uso:** UC-01  
-> **Estado:** Especificado (implementación pendiente, enfoque TDD)  
+> **Estado:** Implementado y retenido  
 > **Fuente de verdad:** `docs/REQUISITOS.md` (secciones 4.1 Landing, 5.1 Input, 8.1 Accesibilidad)  
 > **Nota de alcance:** El rate limiting de la sección 10.2 de `docs/REQUISITOS.md` queda **FUERA** de este caso de uso.
 
@@ -18,7 +18,7 @@ Permite a cualquier visitante acortar una URL larga **sin iniciar sesión**, obt
 ## 3. Precondiciones
 
 - Ninguna. El flujo debe funcionar **sin login**.
-- El servicio de base de datos (SQLite vía better-sqlite3 + Drizzle) debe estar disponible/configurado en el entorno de ejecución.
+- El servicio de base de datos (SQLite vía `bun:sqlite` + Drizzle) debe estar disponible/configurado en el entorno de ejecución.
 
 ## 4. Entrada
 
@@ -67,12 +67,12 @@ Permite a cualquier visitante acortar una URL larga **sin iniciar sesión**, obt
 - **Autenticación / autorización** (Better Auth) — el actor es anónimo.
 - **Alias personalizados** — el `shortCode` es siempre generado, no elegido por el usuario.
 - **Analytics / conteo de clics** — no se registran ni exponen clics.
-- **Observabilidad / Prometheus** (sección 10.1) — sin métricas en este caso.
+- **Observabilidad / Prometheus** (sección 10.1) — se añadirá en la capa de infraestructura en una fase posterior (no por caso de uso).
 - **Redirección `GET /:code`** — será el **caso de uso 2**.
 
 ## 9. Arquitectura propuesta (documentación para alinear tests e implementación)
 
-> Esta sección describe el diseño intencional. **No se implementa aquí**; sirve de contrato para TDD.
+> Esta sección describe el diseño intencional que **ya está implementado** en el repositorio; se conserva como contrato de arquitectura.
 
 ### 9.1. Tipos — `src/lib/links/types.ts`
 
@@ -109,7 +109,7 @@ interface LinkRepository {
 ### 9.6. Implementaciones del repositorio
 
 - `src/lib/links/in-memory-repository.ts` — implementación en memoria de `LinkRepository` para tests rápidos sin BD.
-- `src/lib/links/drizzle-repository.ts` + schema Drizzle `short_links` (SQLite vía `better-sqlite3`) — implementación de producción, integrada en este mismo caso de uso.
+- `src/lib/links/drizzle-repository.ts` + schema Drizzle `short_links` (SQLite vía `bun:sqlite`) — implementación de producción, integrada en este mismo caso de uso.
 
 ### 9.7. Endpoint — `app/api/links/route.ts`
 

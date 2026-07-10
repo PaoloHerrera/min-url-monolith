@@ -1,7 +1,7 @@
 # REQUISITOS DE DISEÑO Y TÉCNICA — Min-URL
 
-> **Versión:** 1.0.0  
-> **Última actualización:** Julio 2026  
+> **Versión:** 1.1.0  
+> **Última actualización:** 2026-07-09  
 > **Propietario:** Equipo de plataforma (laboratorio de estrés)
 
 ---
@@ -25,11 +25,16 @@
 
 ### 1.1. ¿Qué es Min-URL?
 
-Min-URL es un **acortador de URLs monolítico** construido con Next.js. Permite a los usuarios registrar una cuenta, crear URLs cortas, gestionarlas desde un dashboard y consultar estadísticas de clics en tiempo real.
+Min-URL es un **acortador de URLs monolítico** construido con Next.js. Permite a cualquier visitante **acortar una URL larga y compartirla sin registrarse**, y redirige los códigos cortos contando cada clic. No hay cuentas, dashboard ni panel de estadísticas: el producto se reduce a dos casos de uso (UC-01 y UC-02) diseñados para ser estresados.
 
 ### 1.2. Propósito
 
-El proyecto sirve como **laboratorio de pruebas de estrés** para comparar el rendimiento, la escalabilidad y la mantenibilidad de una arquitectura monolítica frente a su homólogo distribuido. Se presta a:
+El proyecto sirve como **laboratorio de pruebas de estrés y observabilidad** para comparar el rendimiento, la escalabilidad y la mantenibilidad de una arquitectura monolítica frente a su homólogo distribuido. El alcance actual se limita a:
+
+- **UC-01 — Crear short URL anónima:** cualquiera acorta una URL larga vía `POST /api/links` (sin login).
+- **UC-02 — Redirigir y contar clics:** `GET /:shortCode` responde 302 y registra el clic en `link_visits`.
+
+Sobre esta base mínima, el laboratorio se presta a:
 
 - **Pruebas de carga con K6** — simulación de tráfico concurrente realista.
 - **Observabilidad** — integración con Prometheus, Grafana y Loki para monitorización.
@@ -46,20 +51,21 @@ El proyecto sirve como **laboratorio de pruebas de estrés** para comparar el re
 
 ## 2. Stack Tecnológico
 
-| Capa              | Tecnología                                 | Versión / Notas                                         |
-| ----------------- | ------------------------------------------ | ------------------------------------------------------- |
-| **Framework**     | Next.js (App Router)                       | 16+ (estable recomendada: 16.2+)                        |
-| **Lenguaje**      | TypeScript                                 | Strict mode, `@total-typescript/tsconfig` recomendado   |
-| **Auth**          | Better Auth                                | Email/password + Google OAuth                           |
-| **Base de datos** | SQLite via `better-sqlite3`                | Zero-dependency, embedded                               |
-| **ORM**           | Drizzle ORM                                | Schema-first, tipo-safe                                 |
-| **Estilos**       | Tailwind CSS                               | v3.4+ con clases semánticas propias                     |
-| **Tipografía**    | Geist (Vercel)                             | Heading + body (variable font)                          |
-| **Iconos**        | Lucide React                               | SVG puro, tree-shakeable                                |
-| **Animación**     | CSS Transitions / Tailwind `transition-*`  | 150–300ms, `ease-out`, respeta `prefers-reduced-motion` |
-| **Testing carga** | K6                                         | Scripts en `/k6/`                                       |
-| **Métricas**      | Prometheus client (instrumentación manual) | Endpoint `/api/metrics`                                 |
-| **Contenedor**    | Docker + docker-compose                    | Multi-stage build                                       |
+| Capa               | Tecnología                                 | Versión / Notas                                                                         |
+| ------------------ | ------------------------------------------ | --------------------------------------------------------------------------------------- |
+| **Framework**      | Next.js (App Router)                       | 16+ (estable recomendada: 16.2+)                                                        |
+| **Lenguaje**       | TypeScript                                 | Strict mode, `@total-typescript/tsconfig` recomendado                                   |
+| **Auth**           | — (sin autenticación)                      | Fuera de alcance del laboratorio actual                                                 |
+| **Base de datos**  | SQLite vía `bun:sqlite`                    | Builtin de Bun (zero-dependency, embedded)                                              |
+| **ORM**            | Drizzle ORM                                | Schema-first, tipo-safe (`drizzle-orm/bun-sqlite`)                                      |
+| **Estilos**        | Tailwind CSS                               | **v4** (config CSS-based vía `@tailwindcss/postcss`, sin `tailwind.config.*`)           |
+| **Tipografía**     | Geist (Vercel)                             | Heading + body (variable font)                                                          |
+| **Iconos**         | Lucide React                               | SVG puro, tree-shakeable                                                                |
+| **Animación**      | CSS Transitions / Tailwind `transition-*`  | 150–300ms, `ease-out`, respeta `prefers-reduced-motion`                                 |
+| **Testing carga**  | K6                                         | **Núcleo del lab**: scripts en `/k6/` (smoke, load, stress, spike, soak)                |
+| **Métricas**       | Prometheus client (instrumentación manual) | **Núcleo del lab**: endpoint `/api/metrics` (HTTP metrics, histogramas, event-loop lag) |
+| **Observabilidad** | pino (logs JSON) + Loki + Grafana          | **Núcleo del lab**: logging estructurado e ingestión para monitorización                |
+| **Contenedor**     | Docker + docker-compose                    | **Núcleo del lab**: multi-stage build + stack `app`/`prometheus`/`grafana`/`loki`       |
 
 ### 2.1. Convenciones de código
 
@@ -76,6 +82,8 @@ El proyecto sirve como **laboratorio de pruebas de estrés** para comparar el re
 ## 3. Sistema de Diseño
 
 El sistema de diseño es **heredado del proyecto distribuido hermano**. Todos los tokens deben coincidir exactamente para garantizar consistencia visual entre ambas arquitecturas.
+
+> **Nota de alcance:** En el estado actual del laboratorio (UC-01 + UC-02, sin auth/dashboard/analytics), este sistema de diseño se aplica exclusivamente a la **landing page (`/`)** — hero, tool card, sección de features/bento y footer. Es la base visual que la próxima fase de UX/UI pulirá y extenderá.
 
 ### 3.1. Colores — Tokens CSS
 
@@ -115,7 +123,7 @@ Los colores se definen como **CSS custom properties** en `:root` (modo oscuro po
 | `--border-subtle`  | `rgba(15,23,42,0.08)` | Bordes de baja prominencia        |
 | `--border-soft`    | `rgba(15,23,42,0.12)` | Bordes de media prominencia       |
 
-> **Nota:** En modo claro, `--bg-overlay`, `--bg-glass`, `--bg-card` y `--glow-brand` se redefinen con equivalentes claros. Ver archivo `tailwind.config.ts` para la implementación completa.
+> **Nota:** En modo claro, `--bg-overlay`, `--bg-glass`, `--bg-card` y `--glow-brand` se redefinen con equivalentes claros. La implementación completa de los tokens vive en `app/globals.css` (Tailwind v4, config CSS-based, sin `tailwind.config.*`).
 
 ### 3.2. Tipografía
 
@@ -180,163 +188,45 @@ Se usa la escala nativa de Tailwind:
 
 ### 4.1. Landing Page (`/`)
 
+La landing es el **único destino de la aplicación** en el alcance actual. Es una "landing completa y pulida" cuyo objetivo es (a) permitir acortar una URL sin autenticación y (b) comunicar que el sitio es un laboratorio de estrés/observabilidad. Puede contener las siguientes secciones:
+
 ```
-┌─────────────────────────────────────────┐
-│  [Logo]         [Login] [Register]       │  ← Nav minimal
-├─────────────────────────────────────────┤
-│                                         │
-│   ✦ Acorta. Comparte. Analiza.          │  ← Hero
-│   URLs cortas con analytics integrados   │  ← Tagline
-│                                         │
-│  ┌─────────────────────────────────────┐│
-│  │ 🔗  https://ejemplo.com/...        ││  ← tool-input
-│  │              [ Shorten ]            ││  ← tool-btn-submit
-│  └─────────────────────────────────────┘│
-│                                         │
-│  ┌── Éxito ────────────────────────────┐│
-│  │  ✓ URL acortada                     ││
-│  │  min-url.dev/abc123                 ││
-│  │  [ Copy ]  [ Visit ]                ││
-│  │  [ Shorten another ]                ││
-│  └─────────────────────────────────────┘│
-│                                         │
-│  Footer minimal © 2026                  │
-└─────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│  ✦ BADGE (p. ej. "Laboratorio de rendimiento SRE")   │  ← Badge decorativo
+│                                                      │
+│   Min-URL Monolith  (Hero, título grande gradiente)   │  ← Hero
+│   Acorta y comparte URLs; redirige y cuenta clics    │  ← Tagline
+│                                                      │
+│   ┌─ background grid + glows decorativos ─────────┐ │  ← Grid + glows
+│   │  🔗 https://ejemplo.com/...   [ Shorten ]      │ │  ← Tool card (tool-input + tool-btn-submit)
+│   └────────────────────────────────────────────────┘│
+│                                                      │
+│   ┌── Éxito ──────────────────────────────────────┐ │
+│   │  ✓ URL acortada                                │ │
+│   │  min-url.dev/abc123                            │ │
+│   │  [ Copy ]  [ Visit ]  [ Shorten another ]      │ │
+│   └────────────────────────────────────────────────┘│
+│                                                      │
+│  ┌── Feature / Bento grid (3 cards) ──────────────┐  │  ← Sección de features (bento)
+│  │  ⚡ Rendimiento · 📊 Observabilidad · 🐳 Docker  │  │
+│  └────────────────────────────────────────────────┘ │
+│                                                      │
+│  Footer minimal © 2026                               │  ← Footer
+└─────────────────────────────────────────────────────┘
 ```
+
+> **Estructura permitida:** la landing **puede** incluir hero con badge, glows y background grid decorativos, la tool card funcional, una sección de features / bento grid (hasta 3 cards) y footer. **No** está prohibido el bento grid ni las secciones de features — la versión actual de `app/page.tsx` ya las implementa y la próxima fase de UX/UI las conservará y pulirá.
 
 **Requisitos funcionales:**
 
-- [ ] Tool card accesible sin autenticación (cualquier usuario puede acortar).
-- [ ] Tras acortar, mostrar estado de éxito con las acciones Copy / Visit / Shorten another.
-- [ ] El botón "Shorten another" resetea el formulario.
-- [ ] Sin sección de features, sin bento grid, sin testimonios.
-- [ ] Footer minimal (copyright + enlace a GitHub).
+- [x] Tool card accesible sin autenticación (cualquier usuario puede acortar).
+- [x] Tras acortar, mostrar estado de éxito con las acciones Copy / Visit / Shorten another.
+- [x] El botón "Shorten another" resetea el formulario.
+- [x] Footer minimal (copyright + versión).
+- [ ] Toggle dark/light funcional (pendiente de la fase UX/UI).
+- [ ] Navbar mínimo opcional (logo + toggle de tema); el login/register han sido eliminados.
 
-### 4.2. Dashboard (`/dashboard`)
-
-```
-┌──────────────────────────────────────────────┐
-│ [Logo]  Dashboard  Analytics  [Avatar ▼]     │  ← Top nav
-├──────────────────────────────────────────────┤
-│                                              │
-│  Mis Enlaces         [+ Create new link]     │
-│                                              │
-│  ┌────┬──────────────┬──────┬──────┬────────┐│
-│  │ #  │ Short URL    │ Orig │ Clicks│ Fecha  ││ ← Tabla
-│  ├────┼──────────────┼──────┼──────┼────────┤│
-│  │ 1  │ /abc123      │ ...  │ 142  │ 12/06  ││
-│  │ 2  │ /xyz456      │ ...  │ 89   │ 10/06  ││
-│  │ 3  │ /def789      │ ...  │ 12   │ 08/06  ││
-│  └────┴──────────────┴──────┴──────┴────────┘│
-│                                              │
-│  ┌── Empty state ───────────────────────────┐│
-│  │  📭  Aún no tienes enlaces               ││
-│  │  Crea tu primer enlace acortado           ││
-│  │              [ Create my first link ]     ││
-│  └──────────────────────────────────────────┘│
-└──────────────────────────────────────────────┘
-```
-
-**Requisitos funcionales:**
-
-- [ ] Ruta protegida: redirigir a `/login` si no hay sesión.
-- [ ] Tabla responsiva (en mobile: vista de lista en lugar de tabla).
-- [ ] Columna "Original URL" truncada con tooltip o preview expandible.
-- [ ] Acciones por fila: copiar, editar, eliminar (con confirmación).
-- [ ] Botón "Create new link" abre inline form o modal (según viewport).
-- [ ] Estado vacío con ilustración minimal + CTA claro.
-
-### 4.3. Analytics (`/dashboard/[linkId]`)
-
-```
-┌──────────────────────────────────────────────┐
-│ [Logo]  Dashboard  Analytics  [Avatar ▼]     │
-├──────────────────────────────────────────────┤
-│  ← Back to dashboard                         │
-│  min-url.dev/abc123                          │  ← Título
-├──────────────────────────────────────────────┤
-│                                              │
-│  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐│
-│  │Total   │ │Unique  │ │Today   │ │Top     ││  ← Stats cards
-│  │1,234   │ │987     │ │45      │ │US      ││
-│  └────────┘ └────────┘ └────────┘ └────────┘│
-│                                              │
-│  ┌─── Time series chart ────────────────────┐│
-│  │  ████▁▁████▁▁████▁▁████                   ││  ← Gráfico
-│  │  Clicks over last 7 days                  ││     (simplificado)
-│  └──────────────────────────────────────────┘│
-│                                              │
-│  ┌─────────────┐  ┌─────────────┐           │
-│  │ Devices      │  │ Browsers    │           │  ← Side panel
-│  │ Desktop 65%  │  │ Chrome 52%  │           │
-│  │ Mobile  30%  │  │ Safari 24%  │           │
-│  │ Tablet   5%  │  │ Firefox 16% │           │
-│  └─────────────┘  └─────────────┘           │
-│  ┌─────────────┐                             │
-│  │ Locations    │                             │
-│  │ US  40%      │                             │
-│  │ GB  15%      │                             │
-│  │ DE  10%      │                             │
-│  └─────────────┘                             │
-└──────────────────────────────────────────────┘
-```
-
-**Requisitos funcionales:**
-
-- [ ] Ruta protegida (solo dueño del link).
-- [ ] Encabezado con back link + short URL como título clickeable.
-- [ ] 4 stats cards con valores numéricos grandes.
-- [ ] Gráfico de serie temporal (clicks/time). Librería: Recharts o Chart.js (ligero). En mobile: simplificar a últimos 7 días.
-- [ ] Side panel con Devices, Browsers, Locations (porcentajes, sin gráfico de tarta si es posible).
-- [ ] Data-focused: sin decoración pesada, máximo 2 colores de acento en gráficos.
-
-### 4.4. Auth (`/login`, `/register`)
-
-```
-┌──────────────────────────────────────────────┐
-│                                              │
-│            ┌────────────────────┐            │
-│            │  glass-panel       │            │
-│            │                    │            │
-│            │   ✦ Min-URL       │            │  ← Logo / nombre
-│            │                    │            │
-│            │   Email            │            │
-│            │   [____________]   │            │
-│            │                    │            │
-│            │   Password         │            │
-│            │   [____________]   │            │
-│            │                    │            │
-│            │   [ Sign In ]      │            │  ← tool-btn-submit
-│            │                    │            │
-│            │   ─── or ───       │            │
-│            │                    │            │
-│            │   [ Continue with  │            │
-│            │     Google ]       │            │  ← btn-cta
-│            │                    │            │
-│            │   Don't have an    │            │
-│            │   account? Register│            │  ← Link
-│            └────────────────────┘            │
-│                                              │
-└──────────────────────────────────────────────┘
-```
-
-**Login (`/login`):**
-
-- [ ] Card centrada con glass-panel.
-- [ ] Campos: email + password.
-- [ ] Botón submit (tool-btn-submit).
-- [ ] Botón Google OAuth (btn-cta).
-- [ ] Link a `/register`.
-- [ ] Error inline para credenciales inválidas.
-
-**Register (`/register`):**
-
-- [ ] Card centrada con glass-panel.
-- [ ] Campos: name + email + password + confirm password.
-- [ ] Placeholder para Turnstile (Cloudflare) — el CAPTCHA se integrará en fase 2.
-- [ ] Botón submit (tool-btn-submit).
-- [ ] Botón Google OAuth (btn-cta).
-- [ ] Link a `/login`.
+> **Nota:** Auth (`/login`, `/register`), Dashboard (`/dashboard`) y Analytics (`/dashboard/[linkId]`) fueron **eliminados del alcance**. Sus especificaciones se conservan en el historial (Apéndice C) pero ya no se implementan.
 
 ---
 
@@ -375,43 +265,7 @@ Se usa la escala nativa de Tailwind:
 | **Empty**   | Mensaje centrado + icono decorativo + CTA                    |
 | **Loading** | Skeleton shimmer (Tailwind `animate-pulse` o custom)         |
 
-### 5.4. Tabla de dashboard
-
-| Estado      | Comportamiento                                               |
-| ----------- | ------------------------------------------------------------ |
-| **Normal**  | Filas con hover sutil (`--bg-card` intensificado)            |
-| **Empty**   | Estado vacío: icono (Lucide `Link2` tachado) + mensaje + CTA |
-| **Loading** | Skeleton rows (5 filas de shimmer)                           |
-| **Error**   | Banner de error con "Reintentar"                             |
-
-### 5.5. Stats cards (analytics)
-
-| Estado      | Comportamiento                                               |
-| ----------- | ------------------------------------------------------------ |
-| **Normal**  | Número grande (--text-primary), label pequeño (--text-muted) |
-| **Loading** | Skeleton circular / rectangular                              |
-| **Error**   | Mostrar "--" en números, tooltip con "Error al cargar"       |
-
-### 5.6. Gráfico de series temporales
-
-| Estado      | Comportamiento                                               |
-| ----------- | ------------------------------------------------------------ |
-| **Normal**  | Línea suave, puntos en hover, tooltip con valor exacto       |
-| **Loading** | Skeleton chart (área gris con shimmer)                       |
-| **Empty**   | Línea plana en cero + texto "No hay datos para este período" |
-| **Error**   | Mostrar estado vacío con opción de reintentar                |
-
-### 5.7. Modal / Inline form (Create link)
-
-| Estado      | Comportamiento                                         |
-| ----------- | ------------------------------------------------------ |
-| **Normal**  | Overlay semi-transparente + panel centrado             |
-| **Loading** | Botón "Creating..." con spinner                        |
-| **Success** | Cerrar modal + toast "Link created" + actualizar tabla |
-| **Error**   | Mensaje inline en el formulario, sin cerrar modal      |
-| **Dismiss** | Click fuera del panel o botón "Cancel" cierra el modal |
-
-### 5.8. Toast / Feedback
+### 5.4. Toast / Feedback
 
 | Tipo        | Comportamiento                                                 |
 | ----------- | -------------------------------------------------------------- |
@@ -434,12 +288,9 @@ Se usa la escala nativa de Tailwind:
 
 ### 6.2. Comportamiento por página
 
-| Página        | ≤ 768px (mobile)                                                                 | ≥ 1024px (desktop)                                         |
-| ------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| **Landing**   | Tool card full-width, hero font más pequeño                                      | Tool card centrado con ancho max 640px                     |
-| **Dashboard** | Tabla → vista de lista (stack vertical). "Create new link" como FAB              | Tabla completa. Inline form en sidebar o modal             |
-| **Analytics** | Stats cards 2×2. Gráfico simplificado (últimos 7 días). Side panel colapsa abajo | Stats cards 1×4. Gráfico completo. Side panel a la derecha |
-| **Auth**      | Card full-width con padding 16px                                                 | Card centrada con ancho max 400px                          |
+| Página      | ≤ 768px (mobile)                                         | ≥ 1024px (desktop)                           |
+| ----------- | -------------------------------------------------------- | -------------------------------------------- |
+| **Landing** | Tool card full-width, hero font más pequeño, bento 1 col | Tool card centrado (max ~640px), bento 3 col |
 
 ### 6.3. Reglas generales
 
@@ -589,6 +440,8 @@ Se usa la escala nativa de Tailwind:
 
 ## 10. Objetivos de Laboratorio
 
+> **Fase de implementación:** Observabilidad, rate limiting, Docker y K6 son el **norte del laboratorio**, pero se implementarán en una **fase posterior a la de UX/UI**. En el estado actual solo están documentados; el código de `/api/metrics`, pino/Loki y los scripts `/k6` aún no existe.
+
 ### 10.1. Instrumentación
 
 | Componente          | Tecnología                 | Detalle                                                      |
@@ -599,14 +452,16 @@ Se usa la escala nativa de Tailwind:
 | **Logging**         | `pino` (JSON) + Loki       | Logs estructurados para ingestión en Grafana Loki            |
 | **APM**             | Opcional: OpenTelemetry    | Trazas distribuidas para comparación con sistema distribuido |
 
-### 10.2. Rate limiting
+### 10.2. Rate limiting (opcional / lab)
 
-| Estrategia    | Implementación                                            |
-| ------------- | --------------------------------------------------------- |
-| **In-memory** | `Map<string, { count, resetTime }>` por IP                |
-| **Ventana**   | Fija (1 minuto) o deslizante (sliding window)             |
-| **Límites**   | 100 req/min por IP en `/api/links`, 20 req/min en `/auth` |
-| **Excepción** | Endpoint `/api/metrics` excluido de rate limiting         |
+> **Opcional:** no bloquea el alcance actual (UC-01 + UC-02). Se considera una mejora de laboratorio, no un requisito obligatorio de la primera fase.
+
+| Estrategia    | Implementación                                    |
+| ------------- | ------------------------------------------------- |
+| **In-memory** | `Map<string, { count, resetTime }>` por IP        |
+| **Ventana**   | Fija (1 minuto) o deslizante (sliding window)     |
+| **Límites**   | 100 req/min por IP en `/api/links`                |
+| **Excepción** | Endpoint `/api/metrics` excluido de rate limiting |
 
 ### 10.3. Dockerización
 
@@ -674,9 +529,10 @@ Se usa la escala nativa de Tailwind:
 
 ## Apéndice C: Historial de cambios
 
-| Versión | Fecha      | Cambios                                     |
-| ------- | ---------- | ------------------------------------------- |
-| 1.0.0   | 2026-07-06 | Versión inicial del documento de requisitos |
+| Versión | Fecha      | Cambios                                                                                                                                                                                                    |
+| ------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.0.0   | 2026-07-06 | Versión inicial del documento de requisitos                                                                                                                                                                |
+| 1.1.0   | 2026-07-09 | Recorte de alcance: se eliminan Dashboard/Analytics/Auth; enfoque en UC-01/UC-02 + observabilidad. `better-sqlite3` → `bun:sqlite`; Tailwind v3.4 → v4; landing permite hero/badge/grid/glows/bento/footer |
 
 ---
 
